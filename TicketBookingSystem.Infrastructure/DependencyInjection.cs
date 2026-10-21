@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using TicketBookingSystem.Application.Interfaces.Repositories;
-using TicketBookingSystem.Application.Interfaces.Services;
-using TicketBookingSystem.Application.Services;
+using TicketBookingSystem.Application.Interfaces.Services.Auth;
+using TicketBookingSystem.Application.Services.AuthService;
 using TicketBookingSystem.Infrastructure.Repositories;
 
 namespace TicketBookingSystem.Infrastructure;

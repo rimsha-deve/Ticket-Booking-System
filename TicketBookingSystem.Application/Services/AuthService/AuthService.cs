@@ -1,26 +1,31 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using Microsoft.EntityFrameworkCore;
 using TicketBookingSystem.Application.DTOs;
+using TicketBookingSystem.Application.DTOs.Login;
 using TicketBookingSystem.Application.Interfaces.Repositories;
-using TicketBookingSystem.Application.Interfaces.Services;
+using TicketBookingSystem.Application.Interfaces.Services.Auth;
 using TicketBookingSystem.Domain.Entities;
+using TicketBookingSystem.Domain.Exceptions;
 
-namespace TicketBookingSystem.Application.Services
+
+namespace TicketBookingSystem.Application.Services.AuthService
 {
     public class AuthService : IAuthService
     {
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
         private readonly IUserRepository _userRepository;
+        private readonly AutoMapper.IMapper _mapper;
 
-        public AuthService(IJwtTokenGenerator jwtTokenGenerator, IUserRepository userRepository)
+        public AuthService(IJwtTokenGenerator jwtTokenGenerator, IUserRepository userRepository, AutoMapper.IMapper mapper)
         {
             _jwtTokenGenerator = jwtTokenGenerator;
             _userRepository = userRepository;
+            _mapper = mapper;
         }
 
-    public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
+        public async Task<ApiResponse<AuthResponse>> RegisterAsync(RegisterRequest request)
         {
             var email = request.Email.Trim().ToLowerInvariant();
 
@@ -28,8 +33,7 @@ namespace TicketBookingSystem.Application.Services
 
             if (existingUser)
             {
-                throw new InvalidOperationException(
-                    "An account with this email already exists.");
+                throw new DuplicateEntity("An account with this email already exists.");
             }
 
             var user = new User
@@ -39,7 +43,7 @@ namespace TicketBookingSystem.Application.Services
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(
                     request.Password),
                 Role = "Customer",
-                CreatedAt = DateTime.UtcNow
+              //  CreatedAt = DateTime.UtcNow
             };
 
             await _userRepository.AddAsync(user);
@@ -49,16 +53,13 @@ namespace TicketBookingSystem.Application.Services
                 user.Id,
                 user.Email,
                 user.Role);
+            var authResponse = _mapper.Map<AuthResponse>(user);
+            authResponse.Token = token;
 
-            return new AuthResponse
-            {
-                Token = token,
-                Email = user.Email,
-                Role = user.Role
-            };
+            return ApiResponse<AuthResponse>.SuccessResponse(authResponse, 200, "Registration successful.");
         }
 
-        public async Task<AuthResponse> LoginAsync(LoginRequest request)
+        public async Task<ApiResponse<AuthResponse>> LoginAsync(LoginRequest request)
         {
             var email = request.Email.Trim().ToLowerInvariant();
 
@@ -68,21 +69,18 @@ namespace TicketBookingSystem.Application.Services
                 !BCrypt.Net.BCrypt.Verify(
                     request.Password, user.PasswordHash))
             {
-                throw new UnauthorizedAccessException(
-                    "Invalid email or password.");
+                throw new UnauthorizedException("Invalid email or password.");
             }
 
             var token = _jwtTokenGenerator.GenerateToken(
                 user.Id,
                 user.Email,
                 user.Role);
+            var authResponse = _mapper.Map<AuthResponse>(user);
 
-            return new AuthResponse
-            {
-                Token = token,
-                Email = user.Email,
-                Role = user.Role
-            };
+            authResponse.Token = token;
+
+            return ApiResponse<AuthResponse>.SuccessResponse(authResponse,200, "Login successful.");
         }
     }
 }

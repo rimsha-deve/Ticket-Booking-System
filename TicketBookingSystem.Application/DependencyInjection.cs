@@ -2,8 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using TicketBookingSystem.Application.Interfaces.Services;
-using TicketBookingSystem.Application.Services;
+using TicketBookingSystem.Application.Interfaces.Services.Auth;
+using TicketBookingSystem.Application.Services.AuthService;
 
 namespace TicketBookingSystem.Application
 {

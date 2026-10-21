@@ -1,12 +1,13 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using TicketBookingSystem.Application;
 using TicketBookingSystem.Application.Interfaces.Repositories;
 using TicketBookingSystem.Application.Interfaces.Services;
+using TicketBookingSystem.Application.Mappings;
 using TicketBookingSystem.Application.Services;
 using TicketBookingSystem.Infrastructure;
 using TicketBookingSystem.Infrastructure.Persistence;
 using TicketBookingSystem.Infrastructure.Repositories;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -48,6 +49,12 @@ builder.Services.AddDbContext<TicketBookingDbContext>(options =>
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices();
 
+// Add AutoMapper
+builder.Services.AddAutoMapper(
+    cfg => { },
+    typeof(MappingProfile).Assembly
+);
+
 
 var app = builder.Build();
 
@@ -59,7 +66,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+
 app.UseHttpsRedirection();
+
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();

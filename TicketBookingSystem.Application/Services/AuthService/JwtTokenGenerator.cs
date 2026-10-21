@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using TicketBookingSystem.Application.Interfaces.Services;
+using TicketBookingSystem.Application.Interfaces.Services.Auth;
 
-namespace TicketBookingSystem.Application.Services
+namespace TicketBookingSystem.Application.Services.AuthService
 {
     public class JwtTokenGenerator : IJwtTokenGenerator
     {

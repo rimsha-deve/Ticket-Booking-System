@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TicketBookingSystem.Application.DTOs;
-using TicketBookingSystem.Application.Interfaces.Services;
+using TicketBookingSystem.Application.DTOs.Login;
+using TicketBookingSystem.Application.Interfaces.Services.Auth;
 
 namespace TicketBookingSystem.API.Controllers
 {
@@ -16,31 +17,17 @@ namespace TicketBookingSystem.API.Controllers
             _authService = authService;
         }
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+        public async Task<ActionResult<ApiResponse<AuthResponse>>> Register([FromBody] RegisterRequest request)
         {
-            try
-            {
-                var response = await _authService.RegisterAsync(request);
-                return Ok(response);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return Conflict(new { message = ex.Message });
-            }
+             var response = await _authService.RegisterAsync(request);
+             return response;
         }
-
+           
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        public async Task<ActionResult<ApiResponse<AuthResponse>>> Login([FromBody] LoginRequest request)
         {
-            try
-            {
-                var response = await _authService.LoginAsync(request);
-                return Ok(response);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(new { message = ex.Message });
-            }
+            var response = await _authService.LoginAsync(request);
+            return response; // implicit conversion to ActionResult<T>
         }
     }
 }

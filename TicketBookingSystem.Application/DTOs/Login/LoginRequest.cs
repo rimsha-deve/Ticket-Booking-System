@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace TicketBookingSystem.Application.DTOs
+namespace TicketBookingSystem.Application.DTOs.Login
 {
     public class LoginRequest
     {
